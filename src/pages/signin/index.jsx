@@ -1,7 +1,7 @@
 // import libraries
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../common/userSlice';
 // Signin function
 function Signin () {
@@ -10,15 +10,19 @@ function Signin () {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const log = async (event) => {
+    const {loading, error} = useSelector((state) => state.user)
+
+    const onSubmitLogin = async (event) => {
         event.preventDefault();
         
-        try {
-            dispatch(loginUser({email, password}))
-            navigate('/user');
-        } catch (error) {
-            console.error(error.response);
-        }
+        dispatch(loginUser({email, password}))
+            .then((result) => {
+                if (result.payload) {
+                    setEmail('');
+                    setPassword('');
+                    navigate('/user');
+                }
+        })
     };
     
     return (
@@ -26,7 +30,7 @@ function Signin () {
             <section className="sign-in-content">
                 <i className="fa fa-user-circle sign-in-icon"></i>
                 <h1>Sign In</h1>
-                <form onSubmit={log}>
+                <form onSubmit={onSubmitLogin}>
                     <div className="input-wrapper">
                         <label htmlFor="email">Username</label>
                         <input type="text" id="email" onChange={(e) => {setEmail(e.target.value)}} />
@@ -39,7 +43,12 @@ function Signin () {
                         <input type="checkbox" id="remember-me" />
                         <label htmlFor="remember-me">Remember me</label>
                     </div>
-                    <button type='submit' className="sign-in-button">Sign In</button>
+                    <button type='submit' className="sign-in-button">
+                        {loading ? 'Loading...': 'Sign In'}
+                    </button>
+                    {error && (
+                        <div className='error'>{error}</div>
+                    )}
                 </form>
             </section>
         </main>

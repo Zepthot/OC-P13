@@ -1,27 +1,21 @@
 // import libraries
 import React, { useEffect } from 'react';
-import axios from "axios";
+import { useDispatch, useSelector } from 'react-redux';
+import { profileUser } from '../../common/userSlice';
 // User function
 function User () {
 
+    const dispatch = useDispatch();
+    const user = useSelector((state) => state.user);
+
     useEffect(() => {
         const fetchUser = async () => {
-            try {
-                // const res = await axios({
-                //     method: 'post',
-                //     url: 'http://localhost:3001/api/v1/user/profile',
-                //     withCredentials: true
-                // }, {headers: { Authorization: `Bearer ${localStorage.getItem('token')}`}});
-                axios.post(
-                    'http://localhost:3001/api/v1/user/profile',
-                    {},
-                    {headers: { Authorization: `Bearer ${localStorage.getItem('token')}`}}
-                ).then(
-                    res => console.log('index user res: ',res)
-                ).catch(error => console.error(error))
-            } catch (error) {
-                console.error(error.response);
-            }
+            dispatch(profileUser(localStorage.getItem('token')))
+            .then((result) => {
+                console.log(result);
+                // console.log('profile in store: ', user.profile.data.body);
+                console.log('profile in localStorage: ', JSON.parse(localStorage.getItem('user')));
+            })
         };
         fetchUser();
         // eslint-disable-next-line

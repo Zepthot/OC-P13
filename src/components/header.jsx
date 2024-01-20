@@ -1,13 +1,25 @@
 // import libraries
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
-import { FaUserCircle } from "react-icons/fa";
+import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { logoutUser } from '../common/userSlice';
 // import assets
 import logo from '../assets/images/argentBankLogo.png';
 // import css
 import '../assets/style/main.css';
+
 // Header function
 function Header () {
+
+    const dispatch = useDispatch();
+    const {profile} = useSelector((state) => state.user);
+
+    const handleSignout = async (event) => {
+        event.preventDefault();
+
+        dispatch(logoutUser())
+    };
     
     return (
         <header>
@@ -20,12 +32,24 @@ function Header () {
                     />
                     <h1 className="sr-only">Argent Bank</h1>
                 </NavLink>
+                {profile ? 
+                <div className='header__user'>
+                    <FaUserCircle className='header__user__logo' />
+                    {profile.body.firstName}
+                    <a href='/' onClick={handleSignout} className='header__user__button'>
+                        <FaSignOutAlt className='header__logout' />
+                        Sign out
+                    </a>
+                </div>
+                :
                 <div>
-                    <NavLink className="main-nav-item" to='/signin'>
-                    <FaUserCircle />
+                    <NavLink className='header__user__button' to='/signin'>
+                    <FaUserCircle className='header__user__logo' />
                     Sign In
                     </NavLink>
                 </div>
+                }
+                
             </nav>
         </header>
     );

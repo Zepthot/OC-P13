@@ -1,31 +1,42 @@
 // import libraries
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { profileUser } from '../../common/userSlice';
 // User function
 function User () {
 
     const dispatch = useDispatch();
-    const user = useSelector((state) => state.user);
+    const {profile} = useSelector((state) => state.user);
+
+    const [firstname, setFirstname] = useState();
+    const [lastname, setLastname] = useState();
+    console.log(firstname, lastname);
 
     useEffect(() => {
-        const fetchUser = async () => {
+        const fetchProfile = async () => {
             dispatch(profileUser(localStorage.getItem('token')))
-            .then((result) => {
-                console.log(result);
-                // console.log('profile in store: ', user.profile.data.body);
-                console.log('profile in localStorage: ', JSON.parse(localStorage.getItem('user')));
-            })
         };
-        fetchUser();
+        fetchProfile();
         // eslint-disable-next-line
     }, []);
     
     return (
         <main className="main bg-dark">
             <div className="header">
-                <h1>Welcome back<br />Tony Jarvis!</h1>
-                <button className="edit-button">Edit Name</button>
+                <h1>Welcome back</h1>
+                {profile ? 
+                <form className='form'>
+                    <div className='form__container'>
+                        <input type='text' placeholder={profile.body.firstName} onChange={(e) => {setFirstname(e.target.value)}} className='form__input' />
+                        <input type='text' placeholder={profile.body.lastName} onChange={(e) => {setLastname(e.target.value)}} className='form__input'/>
+                    </div>
+                    <div  className='form__container'>
+                        <button className="edit-button">Save</button>
+                        <button className="edit-button">Cancel</button>
+                    </div>
+                </form>
+                    : <></>
+                }
             </div>
             <h2 className="sr-only">Accounts</h2>
             <section className="account">

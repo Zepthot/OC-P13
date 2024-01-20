@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
-export const loginUser = createAsyncThunk(
+export const loginUser = createAsyncThunk (
     'user/loginUser',
     async (userData) => {
         const request = await axios.post(
@@ -9,11 +9,11 @@ export const loginUser = createAsyncThunk(
             userData
         )
         localStorage.setItem('token', request.data.body.token);
-        return request;
+        return request.data;
     }
 )
 
-export const profileUser = createAsyncThunk(
+export const profileUser = createAsyncThunk (
     'user/profileUser',
     async (token) => {
         const request = await axios.post(
@@ -22,7 +22,15 @@ export const profileUser = createAsyncThunk(
             {headers: { Authorization: `Bearer ${token}`}}
         )
         localStorage.setItem('user', JSON.stringify(request.data.body));
-        return request;
+        return request.data;
+    }
+)
+
+export const logoutUser = createAsyncThunk (
+    'user/logoutUser',
+    async () => {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
     }
 )
 
@@ -39,13 +47,11 @@ const userSlice = createSlice({
         .addCase(loginUser.pending, (state) => {
             state.loading = true;
             state.token = null;
-            state.profile = null;
             state.error = null;
         })
         .addCase(loginUser.fulfilled, (state, action) => {
             state.loading = false;
             state.token = action.payload;
-            state.profile = null;
             state.error = null;
         })
         .addCase(loginUser.rejected, (state, action) => {
@@ -59,11 +65,34 @@ const userSlice = createSlice({
                 state.error = action.error.message;
             }
         })
+        .addCase(profileUser.pending, (state) => {
+            state.loading = true;
+            state.profile = null;
+            state.error = null;
+        })
         .addCase(profileUser.fulfilled, (state, action) => {
+            state.loading = false;
             state.profile = action.payload;
             state.error = null;
         })
         .addCase(profileUser.rejected, (state, action) => {
+            state.loading = false;
+            state.profile = null;
+            state.error = action.error.message;
+        })
+        .addCase(logoutUser.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(logoutUser.fulfilled, (state) => {
+            state.loading = false;
+            state.token = null;
+            state.profile = null;
+            state.error = null;
+        })
+        .addCase(logoutUser.rejected, (state, action) => {
+            state.loading = false;
+            state.token = null;
             state.profile = null;
             state.error = action.error.message;
         })

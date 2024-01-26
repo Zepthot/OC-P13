@@ -73,7 +73,7 @@ const userSlice = createSlice({
             state.profile = null;
             // console.error('userSlice rejected error: ', action.error.message);
             if (action.error.code === 'ERR_BAD_REQUEST') {
-                state.error = 'User unauthorized'
+                state.error = 'User unauthorized';
             } else {
                 state.error = action.error.message;
             }
@@ -91,7 +91,12 @@ const userSlice = createSlice({
         .addCase(profileUser.rejected, (state, action) => {
             state.loading = false;
             state.profile = null;
-            state.error = action.error.message;
+            // console.error('userSlice rejected error: ', action.error.message);
+            if (action.error.message === 'Request failed with status code 401') {
+                state.error = 'User unauthorized';
+            } else {
+                state.error = action.error.message;
+            }
         })
         .addCase(logoutUser.pending, (state) => {
             state.loading = true;

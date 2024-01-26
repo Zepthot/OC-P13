@@ -1,10 +1,12 @@
 // import libraries
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { profileUser, changeProfileUser } from '../../common/userSlice';
 // User function
 function User () {
 
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const {profile} = useSelector((state) => state.user);
     const [firstName, setFirstname] = useState('');
@@ -13,6 +15,12 @@ function User () {
     useEffect(() => {
         const fetchProfile = async () => {
             dispatch(profileUser())
+            .then((response) => {
+                if (!response.payload) {
+                    navigate('/signin');
+                }
+                
+            });
         };
         fetchProfile();
         // eslint-disable-next-line

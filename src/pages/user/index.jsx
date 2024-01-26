@@ -11,6 +11,7 @@ function User () {
     const {profile} = useSelector((state) => state.user);
     const [firstName, setFirstname] = useState('');
     const [lastName, setLastname] = useState('');
+    const [isEdit, setIsEdit] = useState(false);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -37,13 +38,18 @@ function User () {
             setLastname(profile.body.lastName);
         }
         dispatch(changeProfileUser({firstName, lastName}))
-    }
+        setIsEdit(false);
+    };
     
     return (
         <main className="main bg-dark">
             <div className="header">
-                <h1>Welcome back</h1>
                 {profile ? 
+                <h1>Welcome back<br />{profile.body.firstName} {profile.body.lastName}</h1>
+                    :
+                <h1>Welcome back</h1>
+                }
+                {isEdit ?
                 <form className='form' onSubmit={handleChange}>
                     <div className='form__container'>
                         <input type='text' placeholder={profile.body.firstName} onChange={(e) => {setFirstname(e.target.value)}} className='form__input' />
@@ -51,10 +57,13 @@ function User () {
                     </div>
                     <div  className='form__container'>
                         <button className="edit-button" type='submit'>Save</button>
-                        <button className="edit-button" type='reset'>Cancel</button>
+                        <button className="edit-button" type='reset' onClick={() => setIsEdit(false)}>Cancel</button>
                     </div>
                 </form>
-                    : <></>
+                    : 
+                <button className="edit-button" onClick={() => setIsEdit(true)}>
+                    Edit Name
+                </button>
                 }
             </div>
             <h2 className="sr-only">Accounts</h2>

@@ -4,7 +4,7 @@ import axios from "axios";
 export const loginUser = createAsyncThunk (
     'user/loginUser',
     async (userData) => {
-        const request = await axios.post(
+        const request = await axios.post (
             'http://localhost:3001/api/v1/user/login',
             userData
         )
@@ -15,11 +15,11 @@ export const loginUser = createAsyncThunk (
 
 export const profileUser = createAsyncThunk (
     'user/profileUser',
-    async (token) => {
-        const request = await axios.post(
+    async () => {
+        const request = await axios.post (
             'http://localhost:3001/api/v1/user/profile',
             {},
-            {headers: { Authorization: `Bearer ${token}`}}
+            {headers: { Authorization: `Bearer ${localStorage.getItem('token')}`}}
         )
         localStorage.setItem('user', JSON.stringify(request.data.body));
         return request.data;
@@ -31,6 +31,19 @@ export const logoutUser = createAsyncThunk (
     async () => {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
+    }
+)
+
+export const changeProfileUser = createAsyncThunk (
+    'user/changeProfileUser',
+    async (userData) => {
+        const request = await axios.put (
+            'http://localhost:3001/api/v1/user/profile',
+            userData,
+            {headers: { Authorization: `Bearer ${localStorage.getItem('token')}`}}
+        )
+        localStorage.setItem('user', JSON.stringify(request.data.body));
+        return request.data;
     }
 )
 
@@ -93,6 +106,20 @@ const userSlice = createSlice({
         .addCase(logoutUser.rejected, (state, action) => {
             state.loading = false;
             state.token = null;
+            state.profile = null;
+            state.error = action.error.message;
+        })
+        .addCase(changeProfileUser.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(changeProfileUser.fulfilled, (state, action) => {
+            state.loading = false;
+            state.profile = action.payload;
+            state.error = null;
+        })
+        .addCase(changeProfileUser.rejected, (state, action) => {
+            state.loading = false;
             state.profile = null;
             state.error = action.error.message;
         })

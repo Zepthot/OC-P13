@@ -1,7 +1,7 @@
 // import libraries
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 import { logoutUser } from '../common/userSlice';
 // import assets
@@ -12,13 +12,15 @@ import '../assets/style/main.css';
 // Header function
 function Header () {
 
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const {profile} = useSelector((state) => state.user);
 
     const handleSignout = async (event) => {
         event.preventDefault();
 
-        dispatch(logoutUser())
+        dispatch(logoutUser());
+        navigate('/signin');
     };
     
     return (

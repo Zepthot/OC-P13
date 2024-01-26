@@ -1,38 +1,49 @@
 // import libraries
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { profileUser } from '../../common/userSlice';
+import { profileUser, changeProfileUser } from '../../common/userSlice';
 // User function
 function User () {
 
     const dispatch = useDispatch();
     const {profile} = useSelector((state) => state.user);
-
-    const [firstname, setFirstname] = useState();
-    const [lastname, setLastname] = useState();
-    console.log(firstname, lastname);
+    const [firstName, setFirstname] = useState('');
+    const [lastName, setLastname] = useState('');
 
     useEffect(() => {
         const fetchProfile = async () => {
-            dispatch(profileUser(localStorage.getItem('token')))
+            dispatch(profileUser())
         };
         fetchProfile();
         // eslint-disable-next-line
     }, []);
+
+    const handleChange = async (event) => {
+        event.preventDefault();
+
+        if (firstName === '') {
+            setFirstname(profile.body.firstName);
+        }
+
+        if (lastName === '') {
+            setLastname(profile.body.lastName);
+        }
+        dispatch(changeProfileUser({firstName, lastName}))
+    }
     
     return (
         <main className="main bg-dark">
             <div className="header">
                 <h1>Welcome back</h1>
                 {profile ? 
-                <form className='form'>
+                <form className='form' onSubmit={handleChange}>
                     <div className='form__container'>
                         <input type='text' placeholder={profile.body.firstName} onChange={(e) => {setFirstname(e.target.value)}} className='form__input' />
                         <input type='text' placeholder={profile.body.lastName} onChange={(e) => {setLastname(e.target.value)}} className='form__input'/>
                     </div>
                     <div  className='form__container'>
-                        <button className="edit-button">Save</button>
-                        <button className="edit-button">Cancel</button>
+                        <button className="edit-button" type='submit'>Save</button>
+                        <button className="edit-button" type='reset'>Cancel</button>
                     </div>
                 </form>
                     : <></>

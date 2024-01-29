@@ -188,7 +188,7 @@ paths:
           type: integer
         - in: body
           name: body
-          description: Transaction Payload
+          description: Value of category to create
           required: true
           schema:
             $ref: '#/definitions/TransactionCategory'
@@ -223,7 +223,7 @@ paths:
           type: integer
         - in: body
           name: body
-          description: Transaction Payload
+          description: Value of category to update
           required: true
           schema:
             $ref: '#/definitions/TransactionCategory'
@@ -259,7 +259,7 @@ paths:
           type: integer
         - in: body
           name: body
-          description: Transaction Payload
+          description: Value of notes to create
           required: true
           schema:
             $ref: '#/definitions/TransactionNotes'
@@ -294,7 +294,7 @@ paths:
           type: integer
         - in: body
           name: body
-          description: Transaction Payload
+          description: Value of notes to update
           required: true
           schema:
             $ref: '#/definitions/TransactionNotes'
@@ -327,6 +327,12 @@ paths:
           description: ID of transaction to return
           required: true
           type: integer
+        - in: body
+          name: body
+          description: Index of notes to delete
+          required: true
+          schema:
+            type: integer
       produces:
         - application/json
       responses:
@@ -426,4 +432,3 @@ definitions:
     type: array
     items:
       type: string
-      maxLength: 1

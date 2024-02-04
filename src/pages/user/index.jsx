@@ -19,6 +19,9 @@ function User () {
             .then((response) => {
                 if (!response.payload) {
                     navigate('/signin');
+                } else {
+                    setFirstname(response.payload.body.firstName);
+                    setLastname(response.payload.body.lastName);
                 }
                 
             });
@@ -30,13 +33,6 @@ function User () {
     const handleChange = async (event) => {
         event.preventDefault();
 
-        if (firstName === '') {
-            setFirstname(profile.body.firstName);
-        }
-
-        if (lastName === '') {
-            setLastname(profile.body.lastName);
-        }
         dispatch(changeProfileUser({firstName, lastName}))
         setIsEdit(false);
     };

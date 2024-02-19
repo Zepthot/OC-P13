@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { profileUser, changeProfileUser } from '../../common/userSlice';
+import axios from 'axios';
 // User function
 function User () {
 
@@ -16,14 +17,34 @@ function User () {
     useEffect(() => {
         const fetchProfile = async () => {
             dispatch(profileUser())
-            .then((response) => {
-                if (!response.payload) {
+            .then(async (response) => {
+                if (response.error?.message === 'Request failed with status code 401') {
+                    try {
+                        const refresh = await axios.get (
+                            'http://localhost:3001/api/v1/refreshAccess',
+                            {headers: { authorization: `Bearer ${localStorage.getItem('refreshToken')}`}}
+                        )
+                        localStorage.setItem('token', refresh.data.token);
+                        localStorage.setItem('refreshToken', refresh.data.refreshToken);
+                    } catch (error) {
+                        console.error('redirect failed: ', error)
+                    }
+                    dispatch(profileUser())
+                        .then((resp) => {
+                            if (!resp.payload) {
+                                navigate('/signin');
+                            } else {
+                                setFirstname(resp.payload.body.firstName);
+                                setLastname(resp.payload.body.lastName);
+                            }
+                        })
+
+                } else if (!response.payload) {
                     navigate('/signin');
                 } else {
                     setFirstname(response.payload.body.firstName);
                     setLastname(response.payload.body.lastName);
                 }
-                
             });
         };
         fetchProfile();
@@ -34,6 +55,21 @@ function User () {
         event.preventDefault();
 
         dispatch(changeProfileUser({firstName, lastName}))
+        .then(async (response) => {
+            if (response.error?.message === 'Request failed with status code 401') {
+                try {
+                    const refresh = await axios.get (
+                        'http://localhost:3001/api/v1/refreshAccess',
+                        {headers: { authorization: `Bearer ${localStorage.getItem('refreshToken')}`}}
+                    )
+                    localStorage.setItem('token', refresh.data.token);
+                    localStorage.setItem('refreshToken', refresh.data.refreshToken);
+                } catch (error) {
+                    console.error('redirect failed: ', error)
+                }
+                dispatch(changeProfileUser({firstName, lastName}))
+            }
+        })
         setIsEdit(false);
     };
     
@@ -41,15 +77,15 @@ function User () {
         <main className="main bg-dark">
             <div className="header">
                 {profile ? 
-                <h1>Welcome back<br />{profile.body.firstName} {profile.body.lastName}</h1>
+                <h1>Welcome back<br />{profile.firstName} {profile.lastName}</h1>
                     :
                 <h1>Welcome back</h1>
                 }
                 {isEdit ?
                 <form className='form' onSubmit={handleChange}>
                     <div className='form__container'>
-                        <input type='text' placeholder={profile.body.firstName} onChange={(e) => {setFirstname(e.target.value)}} className='form__input' />
-                        <input type='text' placeholder={profile.body.lastName} onChange={(e) => {setLastname(e.target.value)}} className='form__input'/>
+                        <input type='text' placeholder={profile.firstName} onChange={(e) => {setFirstname(e.target.value)}} className='form__input' />
+                        <input type='text' placeholder={profile.lastName} onChange={(e) => {setLastname(e.target.value)}} className='form__input'/>
                     </div>
                     <div  className='form__container'>
                         <button className="edit-button" type='submit'>Save</button>

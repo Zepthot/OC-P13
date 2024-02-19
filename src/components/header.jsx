@@ -37,7 +37,7 @@ function Header () {
                 {profile ? 
                 <div className='header__user'>
                     <FaUserCircle className='header__user__logo' />
-                    {profile.body.firstName}
+                    {profile.firstName}
                     <a href='/' onClick={handleSignout} className='header__user__button'>
                         <FaSignOutAlt className='header__logout' />
                         Sign out

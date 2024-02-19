@@ -9,6 +9,7 @@ export const loginUser = createAsyncThunk (
             userData
         )
         localStorage.setItem('token', request.data.body.token);
+        localStorage.setItem('refreshToken', request.data.body.refreshToken);
         return request.data;
     }
 )
@@ -16,9 +17,8 @@ export const loginUser = createAsyncThunk (
 export const profileUser = createAsyncThunk (
     'user/profileUser',
     async () => {
-        const request = await axios.post (
+        const request = await axios.get (
             'http://localhost:3001/api/v1/user/profile',
-            {},
             {headers: { Authorization: `Bearer ${localStorage.getItem('token')}`}}
         )
         localStorage.setItem('user', JSON.stringify(request.data.body));
@@ -31,6 +31,7 @@ export const logoutUser = createAsyncThunk (
     async () => {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
     }
 )
 
@@ -52,6 +53,7 @@ const userSlice = createSlice({
     initialState: {
         loading: false,
         token: null,
+        refreshToken: null,
         profile: null,
         error: null
     },
@@ -60,20 +62,23 @@ const userSlice = createSlice({
         .addCase(loginUser.pending, (state) => {
             state.loading = true;
             state.token = null;
+            state.refreshToken = null;
             state.error = null;
         })
         .addCase(loginUser.fulfilled, (state, action) => {
             state.loading = false;
-            state.token = action.payload;
+            state.token = action.payload.body.token;
+            state.refreshToken = action.payload.body.refreshToken;
             state.error = null;
         })
         .addCase(loginUser.rejected, (state, action) => {
             state.loading = false;
             state.token = null;
+            state.refreshToken = null;
             state.profile = null;
-            // console.error('userSlice rejected error: ', action.error.message);
-            if (action.error.code === 'ERR_BAD_REQUEST') {
-                state.error = 'User unauthorized';
+            // console.error('userSlice rejected error: ', action.error);
+            if (action.error.message === 'Request failed with status code 400') {
+                state.error = 'Wrong Username/Password';
             } else {
                 state.error = action.error.message;
             }
@@ -85,7 +90,7 @@ const userSlice = createSlice({
         })
         .addCase(profileUser.fulfilled, (state, action) => {
             state.loading = false;
-            state.profile = action.payload;
+            state.profile = action.payload.body;
             state.error = null;
         })
         .addCase(profileUser.rejected, (state, action) => {
@@ -105,12 +110,14 @@ const userSlice = createSlice({
         .addCase(logoutUser.fulfilled, (state) => {
             state.loading = false;
             state.token = null;
+            state.refreshToken = null;
             state.profile = null;
             state.error = null;
         })
         .addCase(logoutUser.rejected, (state, action) => {
             state.loading = false;
             state.token = null;
+            state.refreshToken = null;
             state.profile = null;
             state.error = action.error.message;
         })
@@ -120,7 +127,7 @@ const userSlice = createSlice({
         })
         .addCase(changeProfileUser.fulfilled, (state, action) => {
             state.loading = false;
-            state.profile = action.payload;
+            state.profile = action.payload.body;
             state.error = null;
         })
         .addCase(changeProfileUser.rejected, (state, action) => {
